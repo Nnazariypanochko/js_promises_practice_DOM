@@ -1,5 +1,5 @@
 const body = document.querySelector('body');
-const promise1 = new Promise((resolve, reject) => {
+const firstPromise = new Promise((resolve, reject) => {
   let wasClicked = false;
   const timeout = setTimeout(() => {
     const div = document.createElement('div');
@@ -31,8 +31,7 @@ const promise1 = new Promise((resolve, reject) => {
     timeout();
   }
 });
-
-const promise2 = new Promise((resolve, reject) => {
+const secondPromise = new Promise((resolve, reject) => {
   document.addEventListener('mousedown', (e) => {
     if (e.button === 0 || e.button === 2) {
       e.preventDefault();
@@ -48,7 +47,7 @@ const promise2 = new Promise((resolve, reject) => {
 });
 let leftClick = false;
 let rightClick = false;
-const promise3 = new Promise((resolve, reject) => {
+const thirdPromise = new Promise((resolve, reject) => {
   document.addEventListener('mousedown', (e) => {
     if (e.button === 0) {
       leftClick = true;
@@ -69,22 +68,22 @@ const promise3 = new Promise((resolve, reject) => {
       div.textContent = 'Third promise was resolved';
       resolve(body.append(div));
     } else {
-      reject(new Error('You don`t click left mouse or right mouse'));
+      reject(new Error('You dont click left mouse or right mouse'));
     }
   });
 });
 
-promise1.then(
+firstPromise.then(
   (success) => success,
   (error) => error,
 );
 
-promise2.then(
+secondPromise.then(
   (success) => success,
   (error) => error,
 );
 
-promise3.then(
+thirdPromise.then(
   (success) => success,
   (error) => error,
 );
