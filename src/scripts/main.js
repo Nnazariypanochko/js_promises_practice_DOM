@@ -1,113 +1,90 @@
-'use strict';
+const body = document.querySelector('body');
+const promise1 = new Promise((resolve, reject) => {
+  let wasClicked = false;
+  const timeout = setTimeout(() => {
+    const div = document.createElement('div');
 
-// --- First Promise ---
-const firstPromise = new Promise((resolve, reject) => {
-  let settled = false;
-
-  const timer = setTimeout(() => {
-    if (!settled) {
-      settled = true;
-      reject(new Error('First promise was rejected'));
-    }
+    div.setAttribute('data-qa', 'notification');
+    div.classList.add('error');
+    div.textContent = 'First promise was rejected';
+    document.removeEventListener('click', onClick);
+    reject(body.append(div));
   }, 3000);
+  const onClick = (e) => {
+    if (e.target) {
+      wasClicked = true;
+      clearTimeout(timeout);
 
-  document.addEventListener('click', () => {
-    if (!settled) {
-      settled = true;
-      clearTimeout(timer);
-      resolve('First promise was resolved');
+      const div = document.createElement('div');
+
+      div.setAttribute('data-qa', 'notification');
+      div.classList.add('success');
+      div.textContent = 'First promise was resolved';
+      resolve(body.append(div));
+      document.removeEventListener('click', onClick);
+    }
+  };
+
+  document.addEventListener('click', onClick);
+
+  if (wasClicked === false) {
+    timeout();
+  }
+});
+
+const promise2 = new Promise((resolve, reject) => {
+  document.addEventListener('mousedown', (e) => {
+    if (e.button === 0 || e.button === 2) {
+      e.preventDefault();
+
+      const div = document.createElement('div');
+
+      div.setAttribute('data-qa', 'notification');
+      div.classList.add('success');
+      div.textContent = 'Second promise was resolved';
+      resolve(body.append(div));
+    }
+  });
+});
+let leftClick = false;
+let rightClick = false;
+const promise3 = new Promise((resolve, reject) => {
+  document.addEventListener('mousedown', (e) => {
+    if (e.button === 0) {
+      leftClick = true;
+    }
+
+    if (e.button === 2) {
+      document.addEventListener('contextmenu', (ev) => {
+        ev.preventDefault();
+      });
+      rightClick = true;
+    }
+
+    if (leftClick && rightClick) {
+      const div = document.createElement('div');
+
+      div.setAttribute('data-qa', 'notification');
+      div.classList.add('success');
+      div.textContent = 'Third promise was resolved';
+      resolve(body.append(div));
+    } else {
+      reject(new Error('You don`t click left mouse or right mouse'));
     }
   });
 });
 
-// --- Second Promise ---
-const secondPromise = new Promise((resolve) => {
-  function handleLeftClick(ev) {
-    if (ev.button === 0) {
-      document.removeEventListener('click', handleLeftClick);
-      document.removeEventListener('contextmenu', handleRightClick);
-      resolve('Second promise was resolved');
-    }
-  }
+promise1.then(
+  (success) => success,
+  (error) => error,
+);
 
-  function handleRightClick(ev) {
-    if (ev.button === 2) {
-      ev.preventDefault();
-      document.removeEventListener('click', handleLeftClick);
-      document.removeEventListener('contextmenu', handleRightClick);
-      resolve('Second promise was resolved');
-    }
-  }
+promise2.then(
+  (success) => success,
+  (error) => error,
+);
 
-  document.addEventListener('click', handleLeftClick);
-  document.addEventListener('contextmenu', handleRightClick);
-});
-
-// --- Third Promise ---
-const thirdPromise = new Promise((resolve) => {
-  let leftClicked = false;
-  let rightClicked = false;
-
-  function handleLeftClick(ev) {
-    if (ev.button === 0) {
-      leftClicked = true;
-      checkBoth();
-    }
-  }
-
-  function handleRightClick(ev) {
-    if (ev.button === 2) {
-      ev.preventDefault();
-      rightClicked = true;
-      checkBoth();
-    }
-  }
-
-  function checkBoth() {
-    if (leftClicked && rightClicked) {
-      document.removeEventListener('click', handleLeftClick);
-      document.removeEventListener('contextmenu', handleRightClick);
-      resolve('Third promise was resolved');
-    }
-  }
-
-  document.addEventListener('click', handleLeftClick);
-  document.addEventListener('contextmenu', handleRightClick);
-});
-
-// --- Обробники промісів для повідомлень ---
-firstPromise
-  .then((msg) => {
-    showNotification(msg, 'success');
-  })
-  .catch((err) => {
-    showNotification(err.message, 'error');
-  });
-
-secondPromise.then((msg) => {
-  showNotification(msg, 'success');
-});
-
-thirdPromise.then((msg) => {
-  showNotification(msg, 'success');
-});
-
-// --- Функція показу повідомлень ---
-function showNotification(message, type) {
-  const div = document.createElement('div');
-
-  div.dataset.qa = 'notification';
-  div.className = type;
-  div.textContent = message;
-
-  document.body.appendChild(div);
-
-  setTimeout(() => {
-    if (div.parentNode) {
-      div.remove();
-    }
-  }, 3000);
-}
-
-// Додаємо обробник для завантаження сторінки
-document.addEventListener('DOMContentLoaded', function () {});
+promise3.then(
+  (success) => success,
+  (error) => error,
+);
